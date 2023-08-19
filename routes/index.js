@@ -62,7 +62,7 @@ async function fetchData() {
   console.log("https://pixe.la/v1/users/dems/graphs/point-graph.html");
 }
 
-fetchData();
+// fetchData();
 
 /* GET home page. */
 router.get("/", function (req, res, next) {
