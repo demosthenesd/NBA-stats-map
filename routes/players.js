@@ -1,6 +1,7 @@
 var express = require("express");
 var router = express.Router();
 const axios = require("axios");
+const { get } = require("./news");
 
 async function playerQuery(player, season) {
   try {
@@ -22,15 +23,25 @@ async function playerQuery(player, season) {
 }
 
 async function getPlayerStats(playerId, season) {
+  let playerData, response, getAllstats;
   try {
-    const response = await axios.get(
+    response = await axios.get(
       `https://www.balldontlie.io/api/v1/season_averages?season=${season}&player_ids[]=${playerId}`
     );
-    const playerData = response.data.data;
+    playerData = response.data.data;
+
+    if (playerData <= 0) {
+      return {
+        Error:
+          "Please ensure that the player has played on the selected season.",
+      };
+    }
+
     return playerData;
   } catch (err) {
     console.log(err);
-    return "An error occurred.";
+
+    return "Error occured";
   }
 }
 
@@ -48,7 +59,6 @@ router.post("/", async function (req, res, next) {
     const { player, season } = req.body;
 
     const result = await playerQuery(player, season);
-    console.log(result);
     res.json(result);
   } catch (error) {
     res.status(500).send("An error occurred.");

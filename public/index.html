@@ -1,81 +1,143 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>NBA Player Stats</title>
     <!-- Include Bootstrap CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-</head>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    />
+  </head>
 
-<body>
+  <body>
     <div class="container mt-5">
-        <h1 class="mb-4">NBA Player Stats</h1>
-        <form id="player-search-form" class="mb-4">
-            <div class="row">
-                <div class="col-md-4 mb-3">
-                    <label for="player-name" class="form-label">Player Name:</label>
-                    <input type="text" class="form-control" id="player-name" name="player" required>
-                </div>
-                <div class="col-md-4 mb-3">
-                    <label for="season" class="form-label">Season:</label>
-                    <input type="text" class="form-control" id="season" name="season" required>
-                </div>
-                <div class="col-md-4 mb-3">
-                    <label></label>
-                    <button type="submit" class="btn btn-primary">Search</button>
-                </div>
-            </div>
-        </form>
-        <div id="player-stats"></div>
+      <h1 class="mb-4">NBA Player Stats</h1>
+      <form id="player-search-form" class="mb-4">
+        <div class="row">
+          <div class="col-md-4 mb-3">
+            <label for="player-name" class="form-label">Player Name:</label>
+            <input
+              type="text"
+              class="form-control"
+              id="player-name"
+              name="player"
+              required
+            />
+          </div>
+          <div class="col-md-4 mb-3">
+            <label for="season" class="form-label">Season:</label>
+            <input
+              type="text"
+              class="form-control"
+              id="season"
+              name="season"
+              required
+            />
+          </div>
+          <div class="col-md-4 mb-3">
+            <label></label>
+            <button type="submit" class="btn btn-primary">Search</button>
+          </div>
+        </div>
+      </form>
+      <div id="player-stats"></div>
+      <div id="youtube-results" class="mt-5"></div>
     </div>
+
+    <style>
+      .video-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+      }
+      .video-iframe {
+        flex: 0 0 calc(50% - 15px); /* Adjust the width and gap as needed */
+      }
+    </style>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        const playerSearchForm = document.getElementById('player-search-form');
-        playerSearchForm.addEventListener('submit', async function (event) {
-            event.preventDefault();
+      const playerSearchForm = document.getElementById("player-search-form");
+      playerSearchForm.addEventListener("submit", async function (event) {
+        event.preventDefault();
 
-            const formData = new FormData(playerSearchForm);
-            const player = formData.get('player');
-            const season = formData.get('season');
+        const formData = new FormData(playerSearchForm);
+        const player = formData.get("player");
+        const season = formData.get("season");
 
-            try {
-                const response = await fetch('/players', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ player, season })
-                });
+        try {
+          const response = await fetch("/players", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ player, season }),
+          });
 
-                const data = await response.json();
+          const data = await response.json();
 
-                const playerStatsDiv = document.getElementById('player-stats');
-                if (response.ok) {
-                    playerStatsDiv.innerHTML = generatePlayerStatsHTML(data);
-                } else {
-                    playerStatsDiv.innerHTML = 'Error fetching player stats';
-                }
-            } catch (error) {
-                console.error('An error occurred:', error);
-            }
-        });
+          const playerStatsDiv = document.getElementById("player-stats");
+          if (response.ok) {
+            playerStatsDiv.innerHTML = `<h1>${player}</h1>`;
+            playerStatsDiv.innerHTML += generatePlayerStatsHTML(data);
+          } else {
+            playerStatsDiv.innerHTML = "Error fetching player stats";
+          }
 
-        function generatePlayerStatsHTML(data) {
-            let html = '<ul>';
-            for (const key in data) {
-                if (typeof data[key] === 'object') {
-                    html += `<li><strong>${key}:</strong> ${generatePlayerStatsHTML(data[key])}</li>`;
-                } else {
-                    html += `<li><strong>${key}:</strong> ${data[key]}</li>`;
-                }
-            }
-            html += '</ul>';
-            return html;
+          const youtubeResponse = await fetch(`/youtube`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ player, season }),
+          });
+
+          const youtubeData = await youtubeResponse.json();
+
+          const youtubeResultsDiv = document.getElementById("youtube-results");
+          if (youtubeResponse.ok) {
+            youtubeResultsDiv.innerHTML =
+              generateYouTubeResultsHTML(youtubeData);
+          } else {
+            youtubeResultsDiv.innerHTML = "Error fetching YouTube results";
+          }
+        } catch (error) {
+          console.error("An error occurred:", error);
         }
-    </script>
-</body>
+      });
 
+      function generatePlayerStatsHTML(data) {
+        let html = '<table class="table"><tbody>';
+        for (const key in data) {
+          if (typeof data[key] === "object") {
+            html += `<tr><td>${generatePlayerStatsHTML(data[key])}</td></tr>`;
+          } else {
+            html += `<tr><td><strong>${key}</strong></td><td>${data[key]}</td></tr>`;
+          }
+        }
+        html += "</tbody></table>";
+        return html;
+      }
+      function generateYouTubeResultsHTML(data) {
+        let html = "<h2>YouTube Results</h2>";
+        html += '<div class="video-container">';
+        data.forEach((video) => {
+          const videoUrl = `https://www.youtube.com/embed/${video.videoId}`;
+          html += `
+        <div class="video-iframe">
+          <div class="embed-responsive embed-responsive-16by9">
+            <iframe class="embed-responsive-item" src="${videoUrl}" allowfullscreen></iframe>
+          </div>
+          <p><strong>${video.title}</strong></p>
+        </div>
+      `;
+        });
+        html += "</div>";
+        return html;
+      }
+    </script>
+  </body>
 </html>

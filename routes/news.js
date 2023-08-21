@@ -12,7 +12,6 @@ async function fetchData() {
 }
 
 router.get("/", function (req, res, next) {
-  // fetchData();
   res.render("index", { title: "Express" });
 });
 
