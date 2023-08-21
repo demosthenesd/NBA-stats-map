@@ -10,8 +10,9 @@ const URL = `https://newsapi.org/v2/everything?q=${query}&from=2023-07-19&sortBy
 async function fetchData() {
   await axios.get(URL).then((res) => console.log(res.data.articles));
 }
-fetchData();
+
 router.get("/", function (req, res, next) {
+  // fetchData();
   res.render("index", { title: "Express" });
 });
 
