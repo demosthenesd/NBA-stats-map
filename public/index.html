@@ -12,6 +12,8 @@
     <form id="player-search-form">
         <label for="player-name">Player Name:</label>
         <input type="text" id="player-name" name="player" required>
+        <label for="season">Season:</label>
+        <input type="text" id="season" name="season" required>
         <button type="submit">Search</button>
     </form>
     <div id="player-stats"></div>
@@ -23,6 +25,7 @@
 
             const formData = new FormData(playerSearchForm);
             const player = formData.get('player');
+            const season = formData.get('season');
 
             try {
                 const response = await fetch('/players', {
@@ -30,7 +33,7 @@
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ player: player })
+                    body: JSON.stringify({ player, season })
                 });
 
                 const data = await response.json();

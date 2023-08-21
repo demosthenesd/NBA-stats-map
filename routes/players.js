@@ -45,9 +45,11 @@ router.get("/", async function (req, res, next) {
 
 router.post("/", async function (req, res, next) {
   try {
-    const playerName = req.body.player; // Assuming the input field name is "player"
-    const player = await playerQuery(playerName, 2022);
-    res.json(player);
+    const { player, season } = req.body;
+
+    const result = await playerQuery(player, season);
+    console.log(result);
+    res.json(result);
   } catch (error) {
     res.status(500).send("An error occurred.");
   }
