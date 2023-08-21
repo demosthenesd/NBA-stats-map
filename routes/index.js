@@ -2,23 +2,6 @@ var express = require("express");
 var router = express.Router();
 const axios = require("axios");
 
-// axios
-//   .get(
-//     "https://www.balldontlie.io/api/v1/stats?seasons[]=2023&seasons[]=2022&player_ids[]=61?per_page=100"
-//   )
-//   .then((res) => {
-//     // if (
-//     //   res.data.data.player.last_name === "Bridges" ||
-//     //   res.data.data.player.first_name === "Mikal"
-//     // )
-//     {
-//       console.log(res.data.data);
-//     }
-//   })
-//   .catch((error) => {
-//     console.error("Error:", error);
-//   });
-
 async function fetchData() {
   const res = await axios.get(
     "https://www.balldontlie.io/api/v1/stats?seasons[]=2023&seasons[]=2022&player_ids[]=61&per_page=100"
