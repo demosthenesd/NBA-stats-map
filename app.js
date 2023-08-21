@@ -6,6 +6,7 @@ var logger = require("morgan");
 
 var indexRouter = require("./routes/index");
 var newsRouter = require("./routes/news");
+var playersRouter = require("./routes/players");
 
 var app = express();
 
@@ -21,6 +22,7 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", indexRouter);
 app.use("/news", newsRouter);
+app.use("/players", playersRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -37,5 +39,7 @@ app.use(function (err, req, res, next) {
   res.status(err.status || 500);
   res.render("error");
 });
+
+app.use(express.static("public")); // Assuming your HTML file is in a folder named 'public'
 
 module.exports = app;
