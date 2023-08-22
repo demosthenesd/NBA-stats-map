@@ -45,15 +45,6 @@ async function getPlayerStats(playerId, season) {
   }
 }
 
-router.get("/", async function (req, res, next) {
-  try {
-    const player = await playerQuery("Giannis A", 2022);
-    res.json(player);
-  } catch (error) {
-    res.status(500).send("An error occurred.");
-  }
-});
-
 router.post("/", async function (req, res, next) {
   try {
     const { player, season } = req.body;
