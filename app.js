@@ -8,7 +8,7 @@ var indexRouter = require("./routes/index");
 var newsRouter = require("./routes/news");
 var playersRouter = require("./routes/players");
 var youtubeRouter = require("./routes/youtube");
-
+var geoChartRouter = require("./routes/geochart");
 var app = express();
 
 // view engine setup
@@ -25,6 +25,7 @@ app.use("/", indexRouter);
 app.use("/news", newsRouter);
 app.use("/players", playersRouter);
 app.use("/youtube", youtubeRouter);
+app.use("/geochart", geoChartRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
