@@ -1,226 +1,268 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NBA Player Stats</title>
+    <link rel="stylesheet" type="text/css" href="../stylesheets/style.css" />
+    <!-- Include Bootstrap CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    />
+  </head>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>NBA Player Stats</title>
-  <link rel="stylesheet" type="text/css" href="../stylesheets/style.css">
-  <!-- Include Bootstrap CSS -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
-</head>
-
-<body>
-  <div class="container mt-5">
-    <h1 class="mb-4">NBA Player Stats</h1>
-    <form id="player-search-form" class="mb-4">
-      <div class="row">
-        <div class="col-md-4 mb-3">
-          <label for="player-name" class="form-label">Player Name:</label>
-          <input type="text" class="form-control" id="player-name" name="player" required />
+  <body>
+    <div class="container mt-5">
+      <h1 class="mb-4">NBA Player Stats</h1>
+      <form id="player-search-form" class="mb-4">
+        <div class="row">
+          <div class="col-md-4 mb-3">
+            <label for="player-name" class="form-label">Player Name:</label>
+            <input
+              type="text"
+              class="form-control"
+              id="player-name"
+              name="player"
+              required
+            />
+          </div>
+          <div class="col-md-4 mb-3">
+            <label for="season" class="form-label">Season:</label>
+            <input
+              type="text"
+              class="form-control"
+              id="season"
+              name="season"
+              required
+            />
+          </div>
+          <div class="col-md-4 mb-3">
+            <label></label>
+            <button type="submit" class="btn btn-primary">Search</button>
+          </div>
         </div>
-        <div class="col-md-4 mb-3">
-          <label for="season" class="form-label">Season:</label>
-          <input type="text" class="form-control" id="season" name="season" required />
-        </div>
-        <div class="col-md-4 mb-3">
-          <label></label>
-          <button type="submit" class="btn btn-primary">Search</button>
-        </div>
-      </div>
-    </form>
-    <div id="player-stats"></div>
-    <div id="chart_div" style="width: 100%; height: 500px;"></div>
-    <div id="news-results" class="mt-5"></div>
-    <div id="youtube-results" class="mt-5"></div>
-  </div>
+      </form>
+      <div id="player-stats"></div>
+      <div id="chart_div" style="width: 100%; height: 500px"></div>
+      <div id="news-results" class="mt-5"></div>
+      <div id="youtube-results" class="mt-5"></div>
+    </div>
 
+    <script
+      type="text/javascript"
+      src="https://www.gstatic.com/charts/loader.js"
+    ></script>
 
-  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
+    <script>
+      const playerSearchForm = document.getElementById("player-search-form");
+      playerSearchForm.addEventListener("submit", async function (event) {
+        event.preventDefault();
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        const formData = new FormData(playerSearchForm);
+        const player = formData.get("player");
+        const season = formData.get("season");
 
-  <script>
-    const playerSearchForm = document.getElementById("player-search-form");
-    playerSearchForm.addEventListener("submit", async function (event) {
-      event.preventDefault();
+        google.charts.load("current", {
+          packages: ["geochart"],
+          mapsApiKey: "AIzaSyA7hlFR0l3jvxhkSexHCMnZjTUtA_KBUSk",
+        });
 
-      const formData = new FormData(playerSearchForm);
-      const player = formData.get("player");
-      const season = formData.get("season");
+        google.charts.setOnLoadCallback(fetchAndDrawChart);
 
-      google.charts.load('current', {
-        'packages': ['geochart'],
-        'mapsApiKey': 'AIzaSyA7hlFR0l3jvxhkSexHCMnZjTUtA_KBUSk'
-      });
+        async function fetchAndDrawChart() {
+          try {
+            const response = await fetch("/geochart", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                player,
+                season,
+              }),
+            });
 
-      google.charts.setOnLoadCallback(fetchAndDrawChart);
+            const data = await response.json();
 
-      async function fetchAndDrawChart() {
+            // Sort data by points and assists in descending order
+            data.sort((data_1, data_2) => {
+              // Compare points (pts) in descending order
+              if (data_2.pts !== data_1.pts) {
+                return data_2.pts - data_1.pts; // Higher points first
+              }
+
+              // If points are equal, compare assists (ast) in descending order
+              return data_2.ast - data_1.ast; // Higher assists first
+            });
+
+            var highestStatsByCity = {}; // Dictionary to store highest stats for each city
+
+            data.forEach((item) => {
+              const city = item.city;
+              if (!highestStatsByCity[city]) {
+                highestStatsByCity[city] = {
+                  pts: item.pts,
+                  ast: item.ast,
+                };
+              }
+            });
+
+            var chartData = new google.visualization.DataTable();
+            chartData.addColumn("string", "City");
+            chartData.addColumn("number", "Points");
+            chartData.addColumn("number", "Assists");
+
+            for (const city in highestStatsByCity) {
+              const { pts, ast } = highestStatsByCity[city];
+              chartData.addRow([city, pts, ast]);
+            }
+
+            var options = {
+              colorAxis: {
+                colors: [
+                  "#ffe792",
+                  "#fccd7a",
+                  "#f8b267",
+                  "#f2975a",
+                  "#eb7a52",
+                  "#e15d50",
+                  "#d43d51",
+                ],
+              },
+              region: "US",
+              datalessRegionColor: "#EDEDED",
+              backgroundColor: { stroke: "#000" },
+              resolution: "provinces", // or 'metros' for more detail
+            };
+
+            var chart = new google.visualization.GeoChart(
+              document.getElementById("chart_div")
+            );
+            chart.draw(chartData, options);
+          } catch (error) {
+            console.error("An error occurred:", error);
+          }
+        }
+
         try {
-          const response = await fetch('/geochart', {
+          const response = await fetch("/players", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
               player,
-              season
+              season,
             }),
-          }); // Replace with your actual API endpoint
-          const data = await response.json();
-
-          var chartData = new google.visualization.DataTable();
-          chartData.addColumn('string', 'City');
-          chartData.addColumn('number', 'Points');
-          chartData.addColumn('number', 'Assists');
-
-          // Assuming your data from the API is an array of objects with "city" and "pts" properties
-          data.forEach((item) => {
-            chartData.addRow([item.city, item.pts, item.ast]);
           });
 
-          var options = {
-            colorAxis: {
-              colors: [
-                "#ffe792",
-                "#fccd7a",
-                "#f8b267",
-                "#f2975a",
-                "#eb7a52",
-                "#e15d50",
-                "#d43d51"]
+          const data = await response.json();
+
+          const playerStatsDiv = document.getElementById("player-stats");
+          if (response.ok) {
+            playerStatsDiv.innerHTML = `<h1>${player}</h1>`;
+            playerStatsDiv.innerHTML += generatePlayerStatsHTML(data);
+          } else {
+            playerStatsDiv.innerHTML = "Error fetching player stats";
+          }
+
+          const newsResponse = await fetch(`/news`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
             },
-            region: 'US',
-            datalessRegionColor: "#EDEDED",
-            backgroundColor: { stroke: "#000", },
-            resolution: 'provinces' // or 'metros' for more detail
-          };
+            body: JSON.stringify({
+              player,
+              season,
+            }),
+          });
 
-          var chart = new google.visualization.GeoChart(document.getElementById('chart_div'));
-          chart.draw(chartData, options);
+          const newsData = await newsResponse.json();
+          console.log(newsData); // Add this line to see the structure of newsData
+
+          const newsResultsDiv = document.getElementById("news-results");
+          if (newsResponse.ok) {
+            newsResultsDiv.innerHTML = `<h1>NEWS</h1>`;
+
+            newsResultsDiv.innerHTML = generateNewsResultsHTML(newsData);
+          } else {
+            newsResultsDiv.innerHTML = "Error fetching News results";
+          }
+
+          const youtubeResponse = await fetch(`/youtube`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              player,
+              season,
+            }),
+          });
+
+          const youtubeData = await youtubeResponse.json();
+
+          const youtubeResultsDiv = document.getElementById("youtube-results");
+          if (youtubeResponse.ok) {
+            youtubeResultsDiv.innerHTML =
+              generateYouTubeResultsHTML(youtubeData);
+          } else {
+            youtubeResultsDiv.innerHTML = "Error fetching YouTube results";
+          }
         } catch (error) {
-          console.error('An error occurred:', error);
+          console.error("An error occurred:", error);
         }
+      });
+
+      function generatePlayerStatsHTML(data) {
+        let html = '<table class="table"><tbody><tr>';
+
+        for (const key in data) {
+          if (typeof data[key] === "object") {
+            html += `<tr><td></td></tr>`;
+          } else {
+            html += `<td><strong>${key}</strong></td>`;
+          }
+        }
+        html += "</tr><tr>";
+
+        for (const key in data) {
+          if (typeof data[key] === "object") {
+            html += `<td>${generatePlayerStatsHTML(data[key])}</td>`;
+          } else {
+            html += `<td>${data[key]}</td>`;
+          }
+        }
+
+        html += "</tr></tbody></table>";
+        return html;
       }
 
-      try {
-        const response = await fetch("/players", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            player,
-            season
-          }),
-        });
-
-        const data = await response.json();
-
-        const playerStatsDiv = document.getElementById("player-stats");
-        if (response.ok) {
-          playerStatsDiv.innerHTML = `<h1>${player}</h1>`;
-          playerStatsDiv.innerHTML += generatePlayerStatsHTML(data);
-        } else {
-          playerStatsDiv.innerHTML = "Error fetching player stats";
-        }
-
-        const newsResponse = await fetch(`/news`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            player,
-            season
-          }),
-        });
-
-        const newsData = await newsResponse.json();
-        console.log(newsData); // Add this line to see the structure of newsData
-
-        const newsResultsDiv = document.getElementById("news-results");
-        if (newsResponse.ok) {
-          newsResultsDiv.innerHTML = `<h1>NEWS</h1>`;
-
-          newsResultsDiv.innerHTML = generateNewsResultsHTML(newsData);
-        } else {
-          newsResultsDiv.innerHTML = "Error fetching News results";
-        }
-
-        const youtubeResponse = await fetch(`/youtube`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            player,
-            season
-          }),
-        });
-
-        const youtubeData = await youtubeResponse.json();
-
-        const youtubeResultsDiv = document.getElementById("youtube-results");
-        if (youtubeResponse.ok) {
-          youtubeResultsDiv.innerHTML =
-            generateYouTubeResultsHTML(youtubeData);
-        } else {
-          youtubeResultsDiv.innerHTML = "Error fetching YouTube results";
-        }
-      } catch (error) {
-        console.error("An error occurred:", error);
-      }
-    });
-
-    function generatePlayerStatsHTML(data) {
-      let html = '<table class="table"><tbody><tr>';
-
-      for (const key in data) {
-        if (typeof data[key] === "object") {
-          html += `<tr><td></td></tr>`;
-        } else {
-          html += `<td><strong>${key}</strong></td>`;
-        }
-      }
-      html += '</tr><tr>'
-
-      for (const key in data) {
-        if (typeof data[key] === "object") {
-          html += `<td>${generatePlayerStatsHTML(data[key])}</td>`;
-        } else {
-          html += `<td>${data[key]}</td>`;
-        }
-      }
-
-      html += "</tr></tbody></table>";
-      return html;
-    }
-
-    function generateNewsResultsHTML(newsArray) {
-      let html = "<h2>News Results</h2>";
-      html += '<div class="news-container">';
-      newsArray.forEach((news) => {
-        html += `
+      function generateNewsResultsHTML(newsArray) {
+        let html = "<h2>News Results</h2>";
+        html += '<div class="news-container">';
+        newsArray.forEach((news) => {
+          html += `
       <div class="news-item">
         <p><strong>${news.title}</strong></p>
         <p>${news.description}</p>
         <p><a href="${news.url}" target="_blank">Read More</a></p>
       </div>
     `;
-      });
-      html += "</div>";
-      return html;
-    }
+        });
+        html += "</div>";
+        return html;
+      }
 
-    function generateYouTubeResultsHTML(data) {
-      let html = "<h2>YouTube Results | Highlights</h2>";
-      html += '<div class="video-container">';
-      data.forEach((video) => {
-        const videoUrl = `https://www.youtube.com/embed/${video.videoId}`;
-        html += `
+      function generateYouTubeResultsHTML(data) {
+        let html = "<h2>YouTube Results | Highlights</h2>";
+        html += '<div class="video-container">';
+        data.forEach((video) => {
+          const videoUrl = `https://www.youtube.com/embed/${video.videoId}`;
+          html += `
         <div class="video-iframe">
           <div class="embed-responsive embed-responsive-16by9">
             <iframe class="embed-responsive-item" src="${videoUrl}" allowfullscreen></iframe>
@@ -228,12 +270,10 @@
           <p><strong>${video.title}</strong></p>
         </div>
       `;
-      });
-      html += "</div>";
-      return html;
-    }
-
-  </script>
-</body>
-
+        });
+        html += "</div>";
+        return html;
+      }
+    </script>
+  </body>
 </html>
