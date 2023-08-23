@@ -28,12 +28,12 @@ async function getAllStats(playerId, season) {
     results.forEach((element) => {
       const { pts, ast, reb, blk, stl } = element;
       const teamId = element.game.home_team_id;
-
+      const date = element.game.date;
       const matchingTeam = AllTeams.find((team) => team.id === teamId);
 
       if (matchingTeam) {
         const { id, city } = matchingTeam;
-        gameStats.push({ teamId: id, city, pts, ast, reb, blk, stl });
+        gameStats.push({ teamId: id, date, city, pts, ast, reb, blk, stl });
       }
     });
 

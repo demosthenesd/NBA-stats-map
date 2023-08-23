@@ -58,6 +58,7 @@
 
     <script>
       const playerSearchForm = document.getElementById("player-search-form");
+
       playerSearchForm.addEventListener("submit", async function (event) {
         event.preventDefault();
 
@@ -87,19 +88,15 @@
 
             const data = await response.json();
 
-            // Sort data by points and assists in descending order
-            data.sort((data_1, data_2) => {
-              // Compare points (pts) in descending order
-              if (data_2.pts !== data_1.pts) {
-                return data_2.pts - data_1.pts; // Higher points first
-              }
-
-              // If points are equal, compare assists (ast) in descending order
-              return data_2.ast - data_1.ast; // Higher assists first
-            });
+            //sorts the data object to have the highest points to prepare for iteration below
+            data.sort(
+              (data_1, data_2) =>
+                data_2.pts - data_1.pts || data_2.ast - data_1.ast
+            );
 
             var highestStatsByCity = {}; // Dictionary to store highest stats for each city
 
+            //iterate through the data to identify the highest points in each city
             data.forEach((item) => {
               const city = item.city;
               if (!highestStatsByCity[city]) {
@@ -123,6 +120,7 @@
             var options = {
               colorAxis: {
                 colors: [
+                  "#EDEDED",
                   "#ffe792",
                   "#fccd7a",
                   "#f8b267",
@@ -135,12 +133,29 @@
               region: "US",
               datalessRegionColor: "#EDEDED",
               backgroundColor: { stroke: "#000" },
-              resolution: "provinces", // or 'metros' for more detail
+              resolution: "provinces",
             };
 
             var chart = new google.visualization.GeoChart(
               document.getElementById("chart_div")
             );
+
+            google.visualization.events.addListener(
+              chart,
+              "select",
+              function () {
+                var selection = chart.getSelection();
+                if (selection.length > 0) {
+                  const mapTeam = chartData.getValue(selection[0].row, 0);
+                  const mapPts = chartData.getValue(selection[0].row, 1);
+
+                  console.log(
+                    ` ${player} vs ${mapTeam} scoring ${mapPts} points - ${season} Highlights`
+                  );
+                }
+              }
+            );
+
             chart.draw(chartData, options);
           } catch (error) {
             console.error("An error occurred:", error);
@@ -181,7 +196,6 @@
           });
 
           const newsData = await newsResponse.json();
-          console.log(newsData); // Add this line to see the structure of newsData
 
           const newsResultsDiv = document.getElementById("news-results");
           if (newsResponse.ok) {
