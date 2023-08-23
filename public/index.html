@@ -6,7 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>NBA Player Stats</title>
   <link rel="stylesheet" type="text/css" href="../stylesheets/style.css">
-
   <!-- Include Bootstrap CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
 </head>
@@ -38,24 +37,6 @@
 
 
   <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-  <script type="text/javascript">
-
-
-
-  </script>
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -68,9 +49,6 @@
       const formData = new FormData(playerSearchForm);
       const player = formData.get("player");
       const season = formData.get("season");
-
-
-
 
       google.charts.load('current', {
         'packages': ['geochart'],
@@ -86,7 +64,10 @@
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ player, season }),
+            body: JSON.stringify({
+              player,
+              season
+            }),
           }); // Replace with your actual API endpoint
           const data = await response.json();
 
@@ -95,7 +76,6 @@
           chartData.addColumn('number', 'Points');
           chartData.addColumn('number', 'Assists');
 
-
           // Assuming your data from the API is an array of objects with "city" and "pts" properties
           data.forEach((item) => {
             chartData.addRow([item.city, item.pts, item.ast]);
@@ -103,10 +83,19 @@
 
           var options = {
             colorAxis: {
-              colors: ['orange', 'red',]
-            }, region: 'US',
+              colors: [
+                "#ffe792",
+                "#fccd7a",
+                "#f8b267",
+                "#f2975a",
+                "#eb7a52",
+                "#e15d50",
+                "#d43d51"]
+            },
+            region: 'US',
+            datalessRegionColor: "#EDEDED",
+            backgroundColor: { stroke: "#000", },
             resolution: 'provinces' // or 'metros' for more detail
-
           };
 
           var chart = new google.visualization.GeoChart(document.getElementById('chart_div'));
@@ -116,27 +105,16 @@
         }
       }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
       try {
         const response = await fetch("/players", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ player, season }),
+          body: JSON.stringify({
+            player,
+            season
+          }),
         });
 
         const data = await response.json();
@@ -154,7 +132,10 @@
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ player, season }),
+          body: JSON.stringify({
+            player,
+            season
+          }),
         });
 
         const newsData = await newsResponse.json();
@@ -169,16 +150,15 @@
           newsResultsDiv.innerHTML = "Error fetching News results";
         }
 
-
-
-
-
         const youtubeResponse = await fetch(`/youtube`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ player, season }),
+          body: JSON.stringify({
+            player,
+            season
+          }),
         });
 
         const youtubeData = await youtubeResponse.json();
@@ -190,12 +170,6 @@
         } else {
           youtubeResultsDiv.innerHTML = "Error fetching YouTube results";
         }
-
-
-
-
-
-
       } catch (error) {
         console.error("An error occurred:", error);
       }
@@ -241,9 +215,6 @@
       return html;
     }
 
-
-
-
     function generateYouTubeResultsHTML(data) {
       let html = "<h2>YouTube Results | Highlights</h2>";
       html += '<div class="video-container">';
@@ -261,10 +232,6 @@
       html += "</div>";
       return html;
     }
-
-
-
-
 
   </script>
 </body>
