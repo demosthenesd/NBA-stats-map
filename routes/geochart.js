@@ -26,85 +26,66 @@ async function getMapStats(player, season) {
   }
 }
 
-async function getPoints(playerId, season) {
+async function getAllTeams() {
   try {
-    const response = await axios.get(
-      `https://www.balldontlie.io/api/v1/stats?player_ids[]=${playerId}&seasons[]=${season}`
-    );
-    const playerData = response.data.data;
+    const response = await axios.get(`https://www.balldontlie.io/api/v1/teams`);
+    const results = response.data.data;
 
-    if (playerData.length <= 0) {
-      return {
-        Error:
-          "Please ensure that the player has played on the selected season.",
-      };
-    }
-
-    return playerData;
+    return results;
   } catch (err) {
     console.log(err);
     return "Error occurred";
   }
 }
 
-// Callback function to draw the heatmap
-function drawHeatmap(playerStats) {
-  const data = new google.visualization.DataTable();
-  data.addColumn("string", "Country");
-  data.addColumn("number", "Points"); // Use "Points" column for values
+async function getAllStats(playerId, season) {
+  try {
+    const response = await axios.get(
+      `https://www.balldontlie.io/api/v1/stats?player_ids[]=${playerId}&seasons[]=${season}`
+    );
 
-  // Extract points and team city from playerStats and add to data
-  playerStats.forEach((stat) => {
-    const points = stat.pts;
-    const teamCity = stat.team.city;
-    data.addRow([teamCity, points]);
-  });
+    const AllTeams = await getAllTeams();
 
-  const options = {
-    region: "world", // Change this to your desired region
-    displayMode: "regions",
-    colorAxis: { colors: ["green", "yellow", "red"] }, // Define your color scale
-    resolution: "countries", // 'provinces', 'metros', etc.
-  };
+    const results = response.data.data;
+    let gameStats = [];
 
-  const chart = new google.visualization.GeoChart(
-    document.getElementById("heatmap")
-  );
-  chart.draw(data, options);
+    results.forEach((element) => {
+      const { pts, ast, reb, blk, stl } = element;
+      const teamId = element.game.home_team_id;
+
+      const matchingTeam = AllTeams.find((team) => team.id === teamId);
+
+      if (matchingTeam) {
+        const { id, city } = matchingTeam;
+        gameStats.push({ teamId: id, city, pts, ast, reb, blk, stl });
+      }
+    });
+
+    return gameStats;
+  } catch (err) {
+    console.log(err);
+    return "Error occurred";
+  }
 }
 
-router.get("/", async function (req, res, next) {
-  try {
-    // const { player } = req.body;
+// router.get("/", async function (req, res, next) {
+//   try {
+//     const results = await getAllStats(237, 2022);
+//     // const results = await getAllTeams();
 
-    const player = "Lebron";
-    const season = 2022;
-    const playerStats = await getMapStats(player, season);
-
-    // Using the map function
-    const pointsAndTeamsCity = playerStats.map((stat) => ({
-      points: stat.pts,
-      teamCity: stat.team.city,
-    }));
-
-    res.json(pointsAndTeamsCity);
-  } catch (error) {
-    res.status(500).send("An error occurred HEre.");
-  }
-  // res.render("index", { title: "Express" });
-});
+//     res.json(results);
+//   } catch (error) {
+//     res.status(500).send("An error occurred.");
+//   }
+// });
 
 router.post("/", async function (req, res, next) {
   try {
-    const { player } = req.body;
+    const { player, season } = req.body;
 
-    const playerStats = await getMapStats(player);
-    if (Array.isArray(playerStats)) {
-      drawHeatmap(playerStats); // Draw heatmap if playerStats is an array
-      res.json(playerStats);
-    } else {
-      res.json({ error: playerStats });
-    }
+    const results = await getAllStats(237, season);
+
+    res.json(results);
   } catch (error) {
     res.status(500).send("An error occurred.");
   }
