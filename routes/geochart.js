@@ -41,7 +41,7 @@ async function getAllTeams() {
 async function getAllStats(playerId, season) {
   try {
     const response = await axios.get(
-      `https://www.balldontlie.io/api/v1/stats?player_ids[]=${playerId}&seasons[]=${season}`
+      `https://www.balldontlie.io/api/v1/stats?player_ids[]=${playerId}&seasons[]=${season}&per_page=100`
     );
 
     const AllTeams = await getAllTeams();
@@ -60,7 +60,7 @@ async function getAllStats(playerId, season) {
         gameStats.push({ teamId: id, city, pts, ast, reb, blk, stl });
       }
     });
-
+    console.log(gameStats.length);
     return gameStats;
   } catch (err) {
     console.log(err);
