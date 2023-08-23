@@ -1,30 +1,6 @@
 var express = require("express");
 var router = express.Router();
 const axios = require("axios");
-const google = require("google-charts");
-
-// Load the Google Charts API
-
-// Function to fetch data from your API or source
-async function getMapStats(player, season) {
-  try {
-    const response = await axios.get(
-      `https://www.balldontlie.io/api/v1/players?search=${player}`
-    );
-    if (response.data.data[0] === undefined) {
-      return "This player is either injured or hasn't played yet!";
-    } else if (response.data.data.length > 1) {
-      return "Please specify the name more!";
-    } else {
-      const playerId = response.data.data[0].id;
-      const playerStats = await getPoints(playerId, season);
-      return playerStats;
-    }
-  } catch (err) {
-    console.log(err);
-    return "An error occurred.";
-  }
-}
 
 async function getAllTeams() {
   try {
@@ -60,7 +36,7 @@ async function getAllStats(playerId, season) {
         gameStats.push({ teamId: id, city, pts, ast, reb, blk, stl });
       }
     });
-    console.log(gameStats.length);
+
     return gameStats;
   } catch (err) {
     console.log(err);
@@ -68,22 +44,38 @@ async function getAllStats(playerId, season) {
   }
 }
 
-// router.get("/", async function (req, res, next) {
-//   try {
-//     const results = await getAllStats(237, 2022);
-//     // const results = await getAllTeams();
+async function getPlayerId(player) {
+  try {
+    const response = await axios.get(
+      `https://www.balldontlie.io/api/v1/players?search=${player}`
+    );
 
-//     res.json(results);
-//   } catch (error) {
-//     res.status(500).send("An error occurred.");
-//   }
-// });
+    let results = response.data.data[0].id;
+
+    console.log(results);
+    return results;
+  } catch (err) {
+    console.log(err);
+    return "Error occurred";
+  }
+}
+router.get("/", async function (req, res, next) {
+  let query = "Lebron";
+  try {
+    const videos = await getPlayerId(query);
+    res.json(videos);
+  } catch (error) {
+    res.status(500).json({ error: "An error occurred" });
+  }
+});
 
 router.post("/", async function (req, res, next) {
   try {
     const { player, season } = req.body;
 
-    const results = await getAllStats(237, season);
+    const playerId = await getPlayerId(player);
+
+    const results = await getAllStats(playerId, season);
 
     res.json(results);
   } catch (error) {

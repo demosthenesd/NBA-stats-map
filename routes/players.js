@@ -1,7 +1,6 @@
 var express = require("express");
 var router = express.Router();
 const axios = require("axios");
-const { get } = require("./news");
 
 async function playerQuery(player, season) {
   try {
@@ -23,7 +22,7 @@ async function playerQuery(player, season) {
 }
 
 async function getPlayerStats(playerId, season) {
-  let playerData, response, getAllstats;
+  let playerData, response;
   try {
     response = await axios.get(
       `https://www.balldontlie.io/api/v1/season_averages?season=${season}&player_ids[]=${playerId}`
