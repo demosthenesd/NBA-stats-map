@@ -31,10 +31,30 @@
       </div>
     </form>
     <div id="player-stats"></div>
-    <div id="heatmap-container"></div>
+    <div id="chart_div" style="width: 100%; height: 500px;"></div>
     <div id="news-results" class="mt-5"></div>
     <div id="youtube-results" class="mt-5"></div>
   </div>
+
+
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  <script type="text/javascript">
+
+
+
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -48,6 +68,67 @@
       const formData = new FormData(playerSearchForm);
       const player = formData.get("player");
       const season = formData.get("season");
+
+
+
+
+      google.charts.load('current', {
+        'packages': ['geochart'],
+        'mapsApiKey': 'AIzaSyA7hlFR0l3jvxhkSexHCMnZjTUtA_KBUSk'
+      });
+
+      google.charts.setOnLoadCallback(fetchAndDrawChart);
+
+      async function fetchAndDrawChart() {
+        try {
+          const response = await fetch('/geochart', {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ player, season }),
+          }); // Replace with your actual API endpoint
+          const data = await response.json();
+
+          var chartData = new google.visualization.DataTable();
+          chartData.addColumn('string', 'City');
+          chartData.addColumn('number', 'Points');
+          chartData.addColumn('number', 'Assists');
+
+
+          // Assuming your data from the API is an array of objects with "city" and "pts" properties
+          data.forEach((item) => {
+            chartData.addRow([item.city, item.pts, item.ast]);
+          });
+
+          var options = {
+            colorAxis: {
+              colors: ['orange', 'red',]
+            }, region: 'US',
+            resolution: 'provinces' // or 'metros' for more detail
+
+          };
+
+          var chart = new google.visualization.GeoChart(document.getElementById('chart_div'));
+          chart.draw(chartData, options);
+        } catch (error) {
+          console.error('An error occurred:', error);
+        }
+      }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
       try {
         const response = await fetch("/players", {
