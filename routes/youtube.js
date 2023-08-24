@@ -45,9 +45,7 @@ router.get("/", async function (req, res) {
 
 router.post("/", async function (req, res, next) {
   try {
-    const { player, season } = req.body;
-
-    let query = `${player} ${season} NBA Highlights`;
+    const { query } = req.body;
 
     const videos = await fetchVideos(query, 4);
     res.json(videos);

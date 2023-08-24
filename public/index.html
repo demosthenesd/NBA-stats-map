@@ -143,15 +143,38 @@
             google.visualization.events.addListener(
               chart,
               "select",
-              function () {
+              async function () {
                 var selection = chart.getSelection();
                 if (selection.length > 0) {
                   const mapTeam = chartData.getValue(selection[0].row, 0);
                   const mapPts = chartData.getValue(selection[0].row, 1);
+                  const mapAsts = chartData.getValue(selection[0].row, 2);
 
-                  console.log(
-                    ` ${player} on ${mapTeam} scoring ${mapPts} points - ${season} Highlights`
-                  );
+                  const query = ` ${player} on ${mapTeam} scoring ${mapPts} points, ${mapAsts} assists - ${season} Highlights`;
+
+                  const youtubeResponse = await fetch(`/youtube`, {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                      query,
+                    }),
+                  });
+
+                  const youtubeData = await youtubeResponse.json();
+
+                  const youtubeResultsDiv =
+                    document.getElementById("youtube-results");
+                  if (youtubeResponse.ok) {
+                    youtubeResultsDiv.innerHTML =
+                      generateYouTubeResultsHTML(youtubeData);
+                  } else {
+                    youtubeResultsDiv.innerHTML =
+                      "Error fetching YouTube results";
+                  }
+
+                  console.log(query);
                 }
               }
             );
@@ -204,27 +227,6 @@
             newsResultsDiv.innerHTML = generateNewsResultsHTML(newsData);
           } else {
             newsResultsDiv.innerHTML = "Error fetching News results";
-          }
-
-          const youtubeResponse = await fetch(`/youtube`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              player,
-              season,
-            }),
-          });
-
-          const youtubeData = await youtubeResponse.json();
-
-          const youtubeResultsDiv = document.getElementById("youtube-results");
-          if (youtubeResponse.ok) {
-            youtubeResultsDiv.innerHTML =
-              generateYouTubeResultsHTML(youtubeData);
-          } else {
-            youtubeResultsDiv.innerHTML = "Error fetching YouTube results";
           }
         } catch (error) {
           console.error("An error occurred:", error);
