@@ -5,7 +5,6 @@ var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 
 var indexRouter = require("./routes/index");
-var newsRouter = require("./routes/news");
 var playersRouter = require("./routes/players");
 var youtubeRouter = require("./routes/youtube");
 var geoChartRouter = require("./routes/geochart");
@@ -22,7 +21,6 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", indexRouter);
-app.use("/news", newsRouter);
 app.use("/players", playersRouter);
 app.use("/youtube", youtubeRouter);
 app.use("/geochart", geoChartRouter);

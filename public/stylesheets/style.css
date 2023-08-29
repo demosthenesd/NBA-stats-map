@@ -1,3 +1,29 @@
+body {
+  /* Add a semi-transparent gradient overlay */
+  background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+    url("./basketball-bg.jpg"); /* Adjust the opacity (0.6) as needed */
+  background-size: cover; /* Scale the image to cover the entire container */
+  background-repeat: no-repeat; /* Prevent the image from repeating */
+  background-attachment: fixed; /* Keep the background image fixed while scrolling */
+}
+
+h1,
+h2,
+p,
+label {
+  color: #fff !important;
+}
+
+tr {
+  border: none !important;
+}
+
+th,
+td,
+tr {
+  border-radius: 10px;
+}
+
 .video-container {
   display: flex;
   flex-wrap: wrap;
@@ -5,4 +31,20 @@
 }
 .video-iframe {
   flex: 0 0 calc(50% - 15px); /* Adjust the width and gap as needed */
+}
+
+.btn-hover-success:hover {
+  transform: scale(1.2); /* Increase the scale value for a larger effect */
+  transition: transform 0.2s; /* Add a smooth transition */
+}
+
+.btn-hover-success:active {
+  background-color: rgba(
+    48,
+    104,
+    194,
+    0.9
+  ) !important; /* Change this color to match your desired pressed color */
+  color: #fff; /* Change text color for better visibility */
+  transition: background-color 0.2s, color 0.2s; /* Add smooth transition */
 }
