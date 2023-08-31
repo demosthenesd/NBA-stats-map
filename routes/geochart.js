@@ -52,7 +52,6 @@ async function getPlayerId(player) {
 
     let results = response.data.data[0].id;
 
-    console.log(results);
     return results;
   } catch (err) {
     console.log(err);
