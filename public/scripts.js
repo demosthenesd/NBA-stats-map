@@ -173,22 +173,6 @@ function generatePlayerStatsHTML(data) {
   return html;
 }
 
-function generateNewsResultsHTML(newsArray) {
-  let html = "<h2>News Results</h2>";
-  html += '<div class="news-container">';
-  newsArray.forEach((news) => {
-    html += `
-  <div class="news-item">
-    <p><strong>${news.title}</strong></p>
-    <p>${news.description}</p>
-    <p><a href="${news.url}" target="_blank">Read More</a></p>
-  </div>
-`;
-  });
-  html += "</div>";
-  return html;
-}
-
 function generateYouTubeResultsHTML(data) {
   let html = "<h2>YouTube Results | Highlights</h2>";
   html += '<div class="video-container">';
