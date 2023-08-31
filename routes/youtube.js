@@ -1,8 +1,9 @@
 var express = require("express");
 var router = express.Router();
 const axios = require("axios");
+require("dotenv").config();
 
-const YOUTUBE_API_KEY = "AIzaSyA7hlFR0l3jvxhkSexHCMnZjTUtA_KBUSk";
+const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY;
 const URL = "https://www.googleapis.com/youtube/v3/search";
 
 async function fetchVideos(query, maxResults = 10) {
