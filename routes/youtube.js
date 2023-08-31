@@ -48,7 +48,7 @@ router.post("/", async function (req, res, next) {
   try {
     const { query } = req.body;
 
-    const videos = await fetchVideos(query, 4);
+    const videos = await fetchVideos(query, 6);
     res.json(videos);
   } catch (error) {
     res.status(500).send("An error occurred.");
