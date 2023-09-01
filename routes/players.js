@@ -7,13 +7,16 @@ async function playerQuery(player, season) {
     const response = await axios.get(
       `https://www.balldontlie.io/api/v1/players?search=${player}`
     );
+    console.log(response.data.data);
     if (response.data.data[0] === undefined) {
       return {
         Error:
           "Please ensure that the player has played on the selected season.",
       };
     } else if (response.data.data.length > 1) {
-      return "Please specify the name more!";
+      return {
+        Error: `I'm getting multiple results with the name: ${player}. Please provide a more specific name.`,
+      };
     } else {
       const result = await getPlayerStats(response.data.data[0].id, season);
       return result;
