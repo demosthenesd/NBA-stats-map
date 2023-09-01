@@ -34,16 +34,6 @@ async function fetchVideos(query, maxResults = 10) {
   }
 }
 
-router.get("/", async function (req, res) {
-  let query = "Cam johnson NBA 2020 highlights";
-  try {
-    const videos = await fetchVideos(query, 20);
-    res.json(videos);
-  } catch (error) {
-    res.status(500).json({ error: "An error occurred" });
-  }
-});
-
 router.post("/", async function (req, res, next) {
   try {
     const { query } = req.body;

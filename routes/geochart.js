@@ -58,15 +58,6 @@ async function getPlayerId(player) {
     return "Error occurred";
   }
 }
-router.get("/", async function (req, res, next) {
-  let query = "Lebron";
-  try {
-    const videos = await getPlayerId(query);
-    res.json(videos);
-  } catch (error) {
-    res.status(500).json({ error: "An error occurred" });
-  }
-});
 
 router.post("/", async function (req, res, next) {
   try {
