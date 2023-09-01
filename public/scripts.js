@@ -7,9 +7,21 @@ playerSearchForm.addEventListener("submit", async function (event) {
   const player = formData.get("player");
   const season = formData.get("season");
 
+  const mapsKey = await fetch("/maps-key")
+    .then((response) => response.json())
+    .then((data) => {
+      const googleMapsApiKey = data.googleMapsApiKey;
+      console.log(googleMapsApiKey);
+      return googleMapsApiKey;
+      // Use the googleMapsApiKey in your frontend code for chart visualization
+    })
+    .catch((error) => {
+      console.error("Error fetching API key:", error);
+    });
+
   google.charts.load("current", {
     packages: ["geochart"],
-    mapsApiKey: "AIzaSyA7hlFR0l3jvxhkSexHCMnZjTUtA_KBUSk",
+    mapsApiKey: await mapsKey,
   });
 
   google.charts.setOnLoadCallback(fetchAndDrawChart);

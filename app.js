@@ -8,6 +8,7 @@ var indexRouter = require("./routes/index");
 var playersRouter = require("./routes/players");
 var youtubeRouter = require("./routes/youtube");
 var geoChartRouter = require("./routes/geochart");
+var mapsKeyRouter = require("./routes/maps-key");
 var app = express();
 
 app.use(logger("dev"));
@@ -20,6 +21,7 @@ app.use("/", indexRouter);
 app.use("/players", playersRouter);
 app.use("/youtube", youtubeRouter);
 app.use("/geochart", geoChartRouter);
+app.use("/maps-key", mapsKeyRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -34,9 +36,17 @@ app.use(function (err, req, res, next) {
 
   // render the error page
   res.status(err.status || 500);
-  res.render("error");
+  // Replace the following line that renders a view with JSON response
+  // res.render("error");
+
+  // Send a JSON response with error details
+  res.json({
+    error: {
+      message: err.message,
+      stack: process.env.NODE_ENV === "development" ? err.stack : undefined,
+    },
+  });
 });
 
-app.use(express.static("public")); // Assuming your HTML file is in a folder named 'public'
-
+app.use(express.static("public"));
 module.exports = app;

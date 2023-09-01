@@ -7,7 +7,6 @@ async function playerQuery(player, season) {
     const response = await axios.get(
       `https://www.balldontlie.io/api/v1/players?search=${player}`
     );
-    console.log(response.data.data);
     if (response.data.data[0] === undefined) {
       return {
         Error:
