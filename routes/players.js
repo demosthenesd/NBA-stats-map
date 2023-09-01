@@ -8,7 +8,10 @@ async function playerQuery(player, season) {
       `https://www.balldontlie.io/api/v1/players?search=${player}`
     );
     if (response.data.data[0] === undefined) {
-      return "This player is either injured or hasn't played yet!";
+      return {
+        Error:
+          "Please ensure that the player has played on the selected season.",
+      };
     } else if (response.data.data.length > 1) {
       return "Please specify the name more!";
     } else {
