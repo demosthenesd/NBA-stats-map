@@ -11,7 +11,6 @@ playerSearchForm.addEventListener("submit", async function (event) {
     .then((response) => response.json())
     .then((data) => {
       const googleMapsApiKey = data.googleMapsApiKey;
-      console.log(googleMapsApiKey);
       return googleMapsApiKey;
       // Use the googleMapsApiKey in your frontend code for chart visualization
     })
@@ -40,6 +39,11 @@ playerSearchForm.addEventListener("submit", async function (event) {
       });
 
       const data = await response.json();
+      if (!data || data.length === 0) {
+        // Handle the case when data is empty
+        console.warn("No data to display.");
+        return; // Exit the function
+      }
 
       //sorts the data object to have the highest points to prepare for iteration below
       data.sort(
@@ -125,8 +129,6 @@ playerSearchForm.addEventListener("submit", async function (event) {
             } else {
               youtubeResultsDiv.innerHTML = "Error fetching YouTube results";
             }
-
-            console.log(query);
           }
         }
       );
@@ -154,7 +156,16 @@ playerSearchForm.addEventListener("submit", async function (event) {
     const playerStatsDiv = document.getElementById("player-stats");
     if (response.ok) {
       playerStatsDiv.innerHTML = `<h1>${player}</h1>`;
-      playerStatsDiv.innerHTML += generatePlayerStatsHTML(data);
+      if (data.Error) {
+        // Display the error message
+        playerStatsDiv.innerHTML += `<p>Error: ${data.Error}</p>`;
+        data.Names.forEach((nameObj) => {
+          playerStatsDiv.innerHTML += `<p>Name: ${nameObj.Name}</p>`;
+        });
+      } else {
+        // Display player stats
+        playerStatsDiv.innerHTML += generatePlayerStatsHTML(data);
+      }
     } else {
       playerStatsDiv.innerHTML = "Error fetching player stats";
     }

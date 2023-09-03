@@ -17,26 +17,22 @@ async function getAllTeams() {
 async function getAllStats(playerId, season) {
   try {
     const response = await axios.get(
-      `https://www.balldontlie.io/api/v1/stats?player_ids[]=${playerId}&seasons[]=${season}&per_page=100`
+      `https://www.balldontlie.io/api/v1/stats?player_ids[]=${playerId}
+      &seasons[]=${season}&per_page=100`
     );
-
     const AllTeams = await getAllTeams();
-
     const results = response.data.data;
     let gameStats = [];
-
     results.forEach((element) => {
       const { pts, ast, reb, blk, stl } = element;
       const teamId = element.game.home_team_id;
       const date = element.game.date;
       const matchingTeam = AllTeams.find((team) => team.id === teamId);
-
       if (matchingTeam) {
         const { id, city } = matchingTeam;
         gameStats.push({ teamId: id, date, city, pts, ast, reb, blk, stl });
       }
     });
-
     return gameStats;
   } catch (err) {
     console.log(err);
