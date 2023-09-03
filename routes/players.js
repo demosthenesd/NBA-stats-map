@@ -13,8 +13,13 @@ async function playerQuery(player, season) {
           "Please ensure that the player has played on the selected season.",
       };
     } else if (response.data.data.length > 1) {
+      const errorObjects = response.data.data.map((item) => ({
+        Name: `${item.first_name} ${item.last_name}`,
+      }));
+      console.log(errorObjects);
       return {
         Error: `I'm getting multiple results with the name: ${player}. Please provide a more specific name.`,
+        Names: errorObjects,
       };
     } else {
       const result = await getPlayerStats(response.data.data[0].id, season);
@@ -22,7 +27,7 @@ async function playerQuery(player, season) {
     }
   } catch (err) {
     console.log(err);
-    return "An error occurred.";
+    return { "Catch Error": "Error occured in playerQuery function" };
   }
 }
 
@@ -45,7 +50,7 @@ async function getPlayerStats(playerId, season) {
   } catch (err) {
     console.log(err);
 
-    return "Error occured";
+    return { "Catch Error": "Error occured in getPlayerStats function" };
   }
 }
 

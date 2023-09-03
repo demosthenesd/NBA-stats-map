@@ -22,16 +22,20 @@
               class="form-control"
               id="player-name"
               name="player"
+              maxlength="25"
+              
               required
             />
           </div>
           <div class="col-md-4 mb-3">
             <label for="season" class="form-label">Season:</label>
             <input
-              type="text"
+              type="number"
               class="form-control"
               id="season"
               name="season"
+              min="1945"
+              max="2022"
               required
             />
           </div>
