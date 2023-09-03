@@ -28,6 +28,10 @@ h2 {
   padding-bottom: 20px;
 }
 
+table {
+  font-size: 14px; /* Adjust the font size as needed */
+}
+
 .video-container {
   display: flex;
   flex-wrap: wrap;
@@ -65,4 +69,8 @@ h2 {
   ) !important; /* Change this color to match your desired pressed color */
   color: #fff; /* Change text color for better visibility */
   transition: background-color 0.2s, color 0.2s; /* Add smooth transition */
+}
+
+footer {
+  background-color: rgba(3, 1, 18, 0.9);
 }
