@@ -3,6 +3,8 @@ var express = require("express");
 var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
+var AWS = require("aws-sdk");
+require("dotenv").config();
 
 var indexRouter = require("./routes/index");
 var playersRouter = require("./routes/players");
@@ -22,6 +24,39 @@ app.use("/players", playersRouter);
 app.use("/youtube", youtubeRouter);
 app.use("/geochart", geoChartRouter);
 app.use("/maps-key", mapsKeyRouter);
+
+// Initialize AWS S3 SDK
+
+const AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID;
+const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY;
+const AWS_SESSION_TOKEN = process.env.AWS_SESSION_TOKEN;
+AWS.config.update({
+  accessKeyId: AWS_ACCESS_KEY_ID,
+  secretAccessKey: AWS_SECRET_ACCESS_KEY,
+  sessionToken: AWS_SESSION_TOKEN,
+  region: "ap-southeast-2",
+});
+
+const s3 = new AWS.S3();
+let pageCounter = 0;
+app.use(function (req, res, next) {
+  pageCounter++;
+  console.log(`Page counter: ${pageCounter}`);
+
+  const params = {
+    Bucket: "cab432-dems-nba-stats",
+    Key: "page-counter.json", // Change the key to a .json file
+    Body: JSON.stringify({ pageCounter }), // Convert to JSON string
+  };
+  s3.upload(params, function (err, data) {
+    if (err) {
+      console.error("Error uploading pageCounter:", err);
+    } else {
+      console.log("pageCounter uploaded successfully:", data.Location);
+    }
+  });
+  next();
+});
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
