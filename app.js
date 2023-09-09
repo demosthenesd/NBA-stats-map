@@ -4,13 +4,14 @@ var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 var AWS = require("aws-sdk");
-const initializeS3Middleware = require("./middleware/s3"); // Require the s3Middleware.js file
+const { initializeS3Middleware } = require("./middleware/s3"); // Require the s3Middleware.js file
 
 var indexRouter = require("./routes/index");
 var playersRouter = require("./routes/players");
 var youtubeRouter = require("./routes/youtube");
 var geoChartRouter = require("./routes/geochart");
 var mapsKeyRouter = require("./routes/maps-key");
+var pageCounterRouter = require("./routes/page-counter");
 var app = express();
 
 app.use(logger("dev"));
@@ -26,6 +27,7 @@ app.use("/geochart", geoChartRouter);
 app.use("/maps-key", mapsKeyRouter);
 
 initializeS3Middleware(app);
+app.use("/page-counter", pageCounterRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
