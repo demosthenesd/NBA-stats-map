@@ -25,11 +25,9 @@ app.use("/players", playersRouter);
 app.use("/youtube", youtubeRouter);
 app.use("/geochart", geoChartRouter);
 app.use("/maps-key", mapsKeyRouter);
-
-initializeS3Middleware(app);
-
 app.use("/page-counter", PageCounterRouter);
 
+initializeS3Middleware(app);
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
   next(createError(404));

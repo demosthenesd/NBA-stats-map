@@ -2,7 +2,7 @@ var express = require("express");
 var router = express.Router();
 const axios = require("axios");
 require("dotenv").config();
-const { checkFileExists, readJsonFile } = require("../middleware/s3"); // Require the s3Middleware.js file
+const { readJsonFile } = require("../middleware/s3"); // Require the s3Middleware.js file
 const AWS = require("aws-sdk");
 const s3 = new AWS.S3();
 
@@ -20,12 +20,8 @@ AWS.config.update({
 });
 
 router.get("/", async (req, res) => {
-  const fileExists = await checkFileExists(bucketName, key);
-
-  if (fileExists) {
-    const results = await readJsonFile(bucketName, key);
-    res.json({ results });
-  }
+  const results = await readJsonFile(bucketName, key);
+  res.json({ results });
 
   // Send the API key as a JSON response
 });
