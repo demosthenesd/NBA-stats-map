@@ -11,7 +11,7 @@ var playersRouter = require("./routes/players");
 var youtubeRouter = require("./routes/youtube");
 var geoChartRouter = require("./routes/geochart");
 var mapsKeyRouter = require("./routes/maps-key");
-var pageCounterRouter = require("./routes/page-counter");
+var PageCounterRouter = require("./routes/page-counter");
 var app = express();
 
 app.use(logger("dev"));
@@ -27,7 +27,8 @@ app.use("/geochart", geoChartRouter);
 app.use("/maps-key", mapsKeyRouter);
 
 initializeS3Middleware(app);
-app.use("/page-counter", pageCounterRouter);
+
+app.use("/page-counter", PageCounterRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

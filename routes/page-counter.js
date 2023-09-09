@@ -6,8 +6,8 @@ const { checkFileExists, readJsonFile } = require("../middleware/s3"); // Requir
 const AWS = require("aws-sdk");
 const s3 = new AWS.S3();
 
-const bucketName = "cab432-dems-nba-stats";
-const key = "page-counter.json";
+const bucketName = process.env.AWS_BUCKET_NAME;
+const key = process.env.AWS_JSON_FILE_NAME;
 const AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID;
 const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY;
 const AWS_SESSION_TOKEN = process.env.AWS_SESSION_TOKEN;

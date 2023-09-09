@@ -2,10 +2,27 @@ const AWS = require("aws-sdk");
 require("dotenv").config();
 const s3 = new AWS.S3();
 
+async function checkAndCreateBucket(bucketName) {
+  try {
+    // Check if the bucket exists
+    await s3.headBucket({ Bucket: bucketName }).promise();
+    return true; // Bucket exists
+  } catch (err) {
+    if (err.statusCode === 404) {
+      // Bucket doesn't exist, create it
+      await s3.createBucket({ Bucket: bucketName }).promise();
+      console.log(`Bucket '${bucketName}' created.`);
+      return true; // Bucket created
+    } else {
+      throw err; // Error occurred
+    }
+  }
+}
+
 // Function to check if the file exists
 async function checkFileExists(bucketName, key) {
   try {
-    const metadata = await s3.headObject({ Bucket: bucketName, Key: key });
+    await s3.headObject({ Bucket: bucketName, Key: key }).promise();
     return true; // File exists
   } catch (err) {
     if (err.code === "NotFound") {
@@ -46,8 +63,7 @@ function initializeS3Middleware(app) {
   const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY;
   const AWS_SESSION_TOKEN = process.env.AWS_SESSION_TOKEN;
   const AWS_REGION = process.env.AWS_REGION;
-  const bucketName = "cab432-dems-nba-stats";
-  const key = "page-counter.json";
+
   AWS.config.update({
     accessKeyId: AWS_ACCESS_KEY_ID,
     secretAccessKey: AWS_SECRET_ACCESS_KEY,
@@ -58,6 +74,10 @@ function initializeS3Middleware(app) {
   app.use(async function (req, res, next) {
     try {
       let pageCounter;
+      const bucketName = process.env.AWS_BUCKET_NAME;
+      const key = process.env.AWS_JSON_FILE_NAME;
+
+      await checkAndCreateBucket(bucketName); //checks if bucket exist, if not, create one with bucketName provided
 
       const fileExists = await checkFileExists(bucketName, key);
 
