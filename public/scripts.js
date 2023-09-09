@@ -216,18 +216,28 @@ function generateYouTubeResultsHTML(data) {
 
 async function getPageCounter() {
   try {
-    const response = await fetch("http://localhost:3000/page-counter");
+    const response = await fetch("/page-counter");
     if (!response.ok) {
       throw new Error("Network response was not ok");
     }
     const data = await response.json();
     const pageCounter = data.results.pageCounter;
-    document.getElementById(
-      "counter"
-    ).textContent = `Page Counter: ${pageCounter}`;
+
+    return pageCounter;
   } catch (error) {
     console.error("Error:", error);
   }
 }
-// Call the function to fetch the page counter when the page loads
-getPageCounter();
+async function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+// Call the function to fetch the page counter after a delay (e.g., 2 seconds)
+delay(500).then(async () => {
+  let val = 0;
+  let pageCounter = await getPageCounter();
+
+  document.getElementById(
+    "counter"
+  ).textContent = `Page Counter: ${pageCounter}`;
+});

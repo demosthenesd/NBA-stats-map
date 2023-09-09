@@ -1,4 +1,4 @@
-# Use the Node.js LTS image as a base
+# Use the Node.js LTS image as  base
 FROM node:lts
 
 # Copy app source
@@ -10,7 +10,7 @@ WORKDIR /src
 # Install app dependencies
 RUN npm install
 
-# Expose port to outside world
+# Expose port to outside 
 EXPOSE 3000
 
 # Start command as per the package.json file
