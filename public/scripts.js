@@ -213,3 +213,21 @@ function generateYouTubeResultsHTML(data) {
   html += "</div>";
   return html;
 }
+
+async function getPageCounter() {
+  try {
+    const response = await fetch("http://localhost:3000/page-counter");
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+    const data = await response.json();
+    const pageCounter = data.results.pageCounter;
+    document.getElementById(
+      "counter"
+    ).textContent = `Page Counter: ${pageCounter}`;
+  } catch (error) {
+    console.error("Error:", error);
+  }
+}
+// Call the function to fetch the page counter when the page loads
+getPageCounter();
