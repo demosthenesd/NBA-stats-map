@@ -1,5 +1,6 @@
 const playerSearchForm = document.getElementById("player-search-form");
 
+//event listener for the submit button
 playerSearchForm.addEventListener("submit", async function (event) {
   event.preventDefault();
 
@@ -7,12 +8,11 @@ playerSearchForm.addEventListener("submit", async function (event) {
   const player = formData.get("player");
   const season = formData.get("season");
 
-  const mapsKey = await fetch("/maps-key")
+  const mapsKey = await fetch("/maps-key") //fetch the GeoChart key
     .then((response) => response.json())
     .then((data) => {
       const googleMapsApiKey = data.googleMapsApiKey;
       return googleMapsApiKey;
-      // Use the googleMapsApiKey in your frontend code for chart visualization
     })
     .catch((error) => {
       console.error("Error fetching API key:", error);
@@ -25,9 +25,11 @@ playerSearchForm.addEventListener("submit", async function (event) {
 
   google.charts.setOnLoadCallback(fetchAndDrawChart);
 
+  //function to draw the Geo Chart Map
   async function fetchAndDrawChart() {
     try {
       const response = await fetch("/geochart", {
+        //send POST request to geo chart
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -62,7 +64,7 @@ playerSearchForm.addEventListener("submit", async function (event) {
           };
         }
       });
-
+      //data used for region hover
       var chartData = new google.visualization.DataTable();
       chartData.addColumn("string", "City");
       chartData.addColumn("number", "Points");
@@ -98,6 +100,7 @@ playerSearchForm.addEventListener("submit", async function (event) {
       );
 
       google.visualization.events.addListener(
+        //event listener when a region with stats is clicked
         chart,
         "select",
         async function () {
@@ -106,9 +109,9 @@ playerSearchForm.addEventListener("submit", async function (event) {
             const mapTeam = chartData.getValue(selection[0].row, 0);
             const mapPts = chartData.getValue(selection[0].row, 1);
             const mapAsts = chartData.getValue(selection[0].row, 2);
-
             const query = ` ${player} on ${mapTeam} scoring ${mapPts} points, ${mapAsts} assists - ${season} Highlights`;
 
+            //send POST request to get Youtube Video highlights
             const youtubeResponse = await fetch(`/youtube`, {
               method: "POST",
               headers: {
@@ -120,7 +123,6 @@ playerSearchForm.addEventListener("submit", async function (event) {
             });
 
             const youtubeData = await youtubeResponse.json();
-
             const youtubeResultsDiv =
               document.getElementById("youtube-results");
             if (youtubeResponse.ok) {
@@ -174,9 +176,10 @@ playerSearchForm.addEventListener("submit", async function (event) {
   }
 });
 
+//function to fill out the stats table
 function generatePlayerStatsHTML(data) {
   let html = '<table class="table"><tbody><tr>';
-
+  //iterate through the data and add rows and column
   for (const key in data) {
     if (typeof data[key] !== "object") {
       html += `<td><strong>${key.toUpperCase()}</strong></td>`;
@@ -215,6 +218,7 @@ function generateYouTubeResultsHTML(data) {
 }
 
 async function getPageCounter() {
+  //function to fetch page counter
   try {
     const response = await fetch("/page-counter");
     if (!response.ok) {
@@ -225,6 +229,7 @@ async function getPageCounter() {
 
     return pageCounter;
   } catch (error) {
+    //catch error
     console.error("Error:", error);
   }
 }
@@ -232,7 +237,7 @@ async function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-// Call the function to fetch the page counter after a delay (e.g., 2 seconds)
+// Call the function to fetch the page counter after a delay to ensure up to date page count is fetched
 delay(500).then(async () => {
   let val = 0;
   let pageCounter = await getPageCounter();

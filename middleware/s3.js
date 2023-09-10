@@ -37,12 +37,13 @@ async function checkFileExists(bucketName, key) {
 async function readJsonFile(bucketName, key) {
   try {
     const data = await s3.getObject({ Bucket: bucketName, Key: key }).promise();
-    return JSON.parse(data.Body.toString("utf-8"));
+    return JSON.parse(data.Body.toString("utf-8")); //return JSON content
   } catch (err) {
     throw err;
   }
 }
 
+// function for uploading JSON data to an AWS S3 bucket.
 async function uploadJsonData(data, bucketName, key) {
   try {
     const updatedParams = {
@@ -51,9 +52,11 @@ async function uploadJsonData(data, bucketName, key) {
       Body: JSON.stringify(data),
     };
 
-    const result = await s3.upload(updatedParams).promise();
+    const result = await s3.upload(updatedParams).promise(); // Upload the data to S3
+
     return result;
   } catch (err) {
+    //catch Error occurred
     throw err;
   }
 }
