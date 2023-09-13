@@ -238,7 +238,7 @@ async function delay(ms) {
 }
 
 // Call the function to fetch the page counter after a delay to ensure up to date page count is fetched
-delay(500).then(async () => {
+delay(1000).then(async () => {
   let val = 0;
   let pageCounter = await getPageCounter();
 
