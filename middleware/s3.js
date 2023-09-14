@@ -4,17 +4,14 @@ const s3 = new AWS.S3();
 
 async function checkAndCreateBucket(bucketName) {
   try {
-    // Check if the bucket exists
-    await s3.headBucket({ Bucket: bucketName }).promise();
-    return true; // Bucket exists
+    await s3.createBucket({ Bucket: bucketName }).promise();
+    console.log(`Created bucket: ${bucketName}`);
   } catch (err) {
-    if (err.statusCode === 404) {
-      // Bucket doesn't exist, create it
-      await s3.createBucket({ Bucket: bucketName }).promise();
-      console.log(`Bucket '${bucketName}' created.`);
-      return true; // Bucket created
+    if (err.statusCode === 409) {
+      console.log(`Bucket already exists: ${bucketName}`);
     } else {
-      throw err; // Error occurred
+      console.log(`Error creating bucket: ${err}`);
+      throw err;
     }
   }
 }
@@ -26,6 +23,13 @@ async function checkFileExists(bucketName, key) {
     return true; // File exists
   } catch (err) {
     if (err.code === "NotFound") {
+      // If the file does not exist, initialize the counter to 1
+      pageCounter = 1;
+
+      // Upload the new counter
+      await uploadJsonData({ pageCounter }, bucketName, key);
+
+      console.log("Page counter initialized:", pageCounter);
       return false; // File doesn't exist
     } else {
       throw err; // Error occurred
@@ -76,26 +80,17 @@ function initializeS3Middleware(app) {
 
   app.use(async function (req, res, next) {
     try {
+      //declare variables
       let pageCounter;
-      const bucketName = process.env.AWS_BUCKET_NAME;
       const key = process.env.AWS_JSON_FILE_NAME;
-
+      const bucketName = process.env.AWS_BUCKET_NAME;
       await checkAndCreateBucket(bucketName); //checks if bucket exist, if not, create one with bucketName provided
 
+      //checks if fileExist, if it does, increment
       const fileExists = await checkFileExists(bucketName, key);
-
-      if (!fileExists) {
-        // If the file does not exist, initialize the counter to 1
-        pageCounter = 1;
-
-        // Upload the new counter
-        await uploadJsonData({ pageCounter }, bucketName, key);
-
-        console.log("Page counter initialized:", pageCounter);
-      } else {
-        // If the file exists, read the counter, increment it, and upload
+      if (fileExists) {
         const jsonContent = await readJsonFile(bucketName, key);
-        pageCounter = jsonContent.pageCounter + 1;
+        pageCounter = jsonContent.pageCounter + 1; //page counter incrementer
 
         // Upload the updated counter
         await uploadJsonData({ pageCounter }, bucketName, key);
