@@ -6,7 +6,12 @@ Combine NBA player statistics from the balldontlie API with the Google GeoChart 
 
 This project is an exciting mashup of the balldontlie API and the Google GeoChart Visualization API, with an added YouTube Data API integration. It allows you to explore and visualize NBA player performance over time using an interactive heatmap. When you click on a specific data point on the heatmap, it automatically searches YouTube for highlights related to the displayed player's performance.
 
+##
+
 ![Landing page](./public/imgs/nba-stats.png)
+
+##
+
 ![Highlights](./public/imgs/nba-stats-utube.png)
 
 ## Features
